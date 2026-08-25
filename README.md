@@ -57,6 +57,7 @@ The project follows the full process from collecting raw data to producing final
 08_Model_Evaluation.ipynb
         ↓
 09_Dashboard.ipynb
+```
 
 Each stage builds on the previous one. The goal is to keep the process separated enough that the data, features, projections, modeling, and evaluation can each be understood on their own.
 
