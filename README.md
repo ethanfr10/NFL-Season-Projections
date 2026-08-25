@@ -57,3 +57,25 @@ The project follows the full process from collecting raw data to producing final
 08_Model_Evaluation.ipynb
         ↓
 09_Dashboard.ipynb
+
+Each stage builds on the previous one. The goal is to keep the process separated enough that the data, features, projections, modeling, and evaluation can each be understood on their own.
+
+## Final Output
+
+The finished model will produce:
+
+- 2026 team strength ratings
+- Player and roster projections
+- Game-by-game win probabilities
+- Expected wins and record distributions
+- Division and playoff probabilities
+- Conference championship probabilities
+- Super Bowl probabilities
+
+The final dashboard will bring these results together so the projections can be explored by team and across the league.
+
+## Why I'm Building It
+
+I've always been interested in understanding why teams win and how much we can actually predict before a season starts.
+
+This project is my attempt to answer that question using data while building an end-to-end NFL analytics model that covers everything from data collection and player evaluation to game predictions and full-season simulations.
