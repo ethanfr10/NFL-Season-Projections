@@ -16,23 +16,6 @@ The model is designed to answer a few main questions:
 - How many games should each team be expected to win?
 - What are each team's chances of winning its division, making the playoffs, and winning the Super Bowl?
 
-Rather than predicting one exact record for each team, the final model will simulate the season many times to show the range of possible outcomes.
-
-## Data
-
-The project uses historical NFL data covering several parts of team and player performance, including:
-
-- Game results and schedules
-- Player statistics
-- Rosters and depth charts
-- Snap counts and player participation
-- Injuries
-- Draft picks
-- Contracts and salary cap information
-- Trades
-
-These datasets are cleaned and combined to create features that measure team performance, player value, roster strength, continuity, and other factors that could help predict future performance.
-
 ## Modeling Process
 
 The project follows the full process from collecting raw data to producing final season projections:
@@ -67,8 +50,8 @@ The finished model will produce:
 
 - 2026 team strength ratings
 - Player and roster projections
-- Game-by-game win probabilities
-- Expected wins and record distributions
+- Game by game win probabilities
+- Expected wins and record 
 - Division and playoff probabilities
 - Conference championship probabilities
 - Super Bowl probabilities
@@ -79,8 +62,7 @@ The final dashboard will bring these results together so the projections can be 
 
 I've always been interested in understanding why teams win and how much we can actually predict before a season starts.
 
-This project is my attempt to answer that question using data while building an end-to-end NFL analytics model that covers everything from data collection and player evaluation to game predictions and full-season simulations.
-
+This project is my attempt to answer that question using data while building an end-to-end NFL analytics model that covers everything from data collection and player evaluation to game predictions and full season simulations.
 
 ### UPDATED AFTER FINISHED PRODUCT
 
@@ -90,7 +72,7 @@ The model's official standings prediction comes from one complete season selecte
 
 Expected wins are still important because they represent a team's average outcome across every simulation. But I also wanted the project to make an actual prediction instead of stopping at 8.7 wins or 9.3 wins.
 
-Rather than manually changing records or simply rounding expected wins, I select a simulated season with a league-wide distribution of records similar to recent NFL seasons. From those realistic simulations, the model selects the season closest overall to its expected team win totals.
+Rather than manually changing records or simply rounding expected wins, I select a simulated season with a league wide distribution of records similar to recent NFL seasons. From those realistic simulations, the model selects the season closest overall to its expected team win totals.
 
 This gives the project one exact and internally consistent prediction for the 2026 season while leaving the underlying team ratings and game probabilities unchanged.
 
@@ -117,7 +99,7 @@ These records represent the model's final exact prediction, not each team's aver
 
 A team's final record doesn't always tell the full story of how good that team is.
 
-Schedule strength, close games, and normal NFL randomness can cause a team's final record to look better or worse than its underlying quality. Because of that, the model separately creates a preseason team-strength rating for all 32 teams.
+Schedule strength, close games, and normal NFL randomness can cause a team's final record to look better or worse than its underlying quality. Because of that, the model separately creates a preseason team strength rating for all 32 teams.
 
 The rating combines:
 
@@ -157,11 +139,11 @@ Each of the 10,000 simulated seasons is used to calculate how frequently every t
 
 ![2026 NFL Playoff Probabilities](outputs/2026_playoff_probabilities.png)
 
-The model also calculates division-title probabilities for all 32 teams.
+The model also calculates division title probabilities for all 32 teams.
 
 ![2026 NFL Division Probabilities](outputs/2026_division_probabilities.png)
 
-This gives more context than an exact record alone. Two teams may have similar projected records while having very different chances of reaching the postseason based on their schedule, division, and game-level probabilities.
+This gives more context than an exact record alone. Two teams may have similar projected records while having very different chances of reaching the postseason based on their schedule, division, and game level probabilities.
 
 ---
 
@@ -181,30 +163,3 @@ The project uses historical NFL data covering several parts of team and player p
 These datasets are cleaned and combined to create features measuring team performance, player value, roster strength, continuity, and other factors that could help predict future performance.
 
 One thing I wanted to avoid was starting with an existing set of power rankings or team ratings. The goal was to build those ratings through the pipeline itself.
-
----
-
-# Modeling Process
-
-The project follows the full process from collecting raw data to producing final season projections:
-
-```text
-00_Model_Design.ipynb
-        ↓
-01_Data_Collection.ipynb
-        ↓
-02_Data_Cleaning.ipynb
-        ↓
-03_Feature_Engineering.ipynb
-        ↓
-04_Player_Projections.ipynb
-        ↓
-05_Team_Strength_Model.ipynb
-        ↓
-06_Game_Predictions.ipynb
-        ↓
-07_Monte_Carlo_Simulation.ipynb
-        ↓
-08_Model_Evaluation.ipynb
-        ↓
-09_Dashboard.ipynb
