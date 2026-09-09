@@ -165,3 +165,19 @@ The model also calculates division title probabilities for all 32 teams.
 ![2026 NFL Division Probabilities](outputs/2026_division_probabilities.png)
 
 This gives more context than an exact record alone. Two teams may have similar projected records while having very different chances of reaching the postseason based on their schedule, division, and game level probabilities.
+
+---
+
+# Conclusion
+
+This project started with a simple goal of seeing how well I could project the 2026 NFL season using data, and it grew into a full end-to-end modeling system. There are plenty of ways I can continue improving it, but I'm happy with where the first complete version ended up.
+
+The real test comes next. As the 2026 season is played, I'll be able to compare these predictions with what actually happens, see where the model was right and wrong, and use those results to keep improving it.
+
+As the season goes on, I will be running week-to-week simulations of what the model predicts will happen for those games in that week.
+
+---
+
+# Author
+
+Ethan Friedman
