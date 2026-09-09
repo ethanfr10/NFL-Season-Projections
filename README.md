@@ -16,6 +16,27 @@ The model is designed to answer a few main questions:
 - How many games should each team be expected to win?
 - What are each team's chances of winning its division, making the playoffs, and winning the Super Bowl?
 
+---
+
+# Data
+
+The project uses historical NFL data covering several parts of team and player performance, including:
+
+- Game results and schedules
+- Player statistics
+- Rosters and depth charts
+- Snap counts and player participation
+- Injuries
+- Draft picks
+- Contracts and salary cap information
+- Trades
+
+These datasets are cleaned and combined to create features measuring team performance, player value, roster strength, continuity, and other factors that could help predict future performance.
+
+One thing I wanted to avoid was starting with an existing set of power rankings or team ratings. The goal was to build those ratings through the pipeline itself.
+
+---
+
 ## Modeling Process
 
 The project follows the full process from collecting raw data to producing final season projections:
@@ -144,22 +165,3 @@ The model also calculates division title probabilities for all 32 teams.
 ![2026 NFL Division Probabilities](outputs/2026_division_probabilities.png)
 
 This gives more context than an exact record alone. Two teams may have similar projected records while having very different chances of reaching the postseason based on their schedule, division, and game level probabilities.
-
----
-
-# Data
-
-The project uses historical NFL data covering several parts of team and player performance, including:
-
-- Game results and schedules
-- Player statistics
-- Rosters and depth charts
-- Snap counts and player participation
-- Injuries
-- Draft picks
-- Contracts and salary cap information
-- Trades
-
-These datasets are cleaned and combined to create features measuring team performance, player value, roster strength, continuity, and other factors that could help predict future performance.
-
-One thing I wanted to avoid was starting with an existing set of power rankings or team ratings. The goal was to build those ratings through the pipeline itself.
