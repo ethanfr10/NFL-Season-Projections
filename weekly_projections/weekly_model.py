@@ -4,9 +4,25 @@ import numpy as np
 import pandas as pd
 
 
-# ---------------------------------------------------------
+# =========================================================
+# LOCKED WEEKLY MODEL CONSTANTS
+# =========================================================
+
+# Historical scoring-strength calibration.
+#
+# These values translate a one-standard-deviation scoring
+# strength difference into points per game based on
+# historical year-to-year scoring persistence.
+#
+# They are NOT calibrated against sportsbook totals.
+
+OFFENSE_POINTS_PER_Z = 1.607
+DEFENSE_POINTS_PER_Z = 1.029
+
+
+# =========================================================
 # Market line helpers
-# ---------------------------------------------------------
+# =========================================================
 
 def convert_market_spreads(df):
 
@@ -32,9 +48,9 @@ def convert_market_spreads(df):
     return df
 
 
-# ---------------------------------------------------------
+# =========================================================
 # ATS helpers
-# ---------------------------------------------------------
+# =========================================================
 
 def add_ats_projections(df):
 
@@ -128,18 +144,143 @@ def format_model_spread(row):
     return "PICK"
 
 
-# ---------------------------------------------------------
-# Total helpers
-# ---------------------------------------------------------
+# =========================================================
+# Total model helpers
+# =========================================================
 
 def add_total_projections(
     df,
-    projected_total
+    baseline_total
 ):
+    """
+    Add final model total and projected scores.
+
+    Parameters
+    ----------
+    df : pandas.DataFrame
+        Weekly game dataframe.
+
+    baseline_total : pandas.Series or array-like
+        Historical matchup-specific total BEFORE the
+        current-season personnel adjustment.
+
+    Required dataframe columns
+    --------------------------
+    home_off_personnel_z
+    away_off_personnel_z
+    home_def_personnel_z
+    away_def_personnel_z
+    expected_home_margin
+
+    Notes
+    -----
+    The historical matchup total establishes the scoring
+    baseline.
+
+    Current offensive and defensive personnel ratings then
+    adjust that baseline using historically calibrated
+    points-per-z values.
+
+    Sportsbook totals are NOT used anywhere in this
+    calculation.
+    """
 
     df = df.copy()
 
-    df["projected_total"] = projected_total
+    required_columns = [
+        "home_off_personnel_z",
+        "away_off_personnel_z",
+        "home_def_personnel_z",
+        "away_def_personnel_z",
+        "expected_home_margin"
+    ]
+
+    missing_columns = [
+        col
+        for col in required_columns
+        if col not in df.columns
+    ]
+
+    if missing_columns:
+        raise KeyError(
+            "Missing columns required for total projections: "
+            + ", ".join(missing_columns)
+        )
+
+    # Preserve the historical matchup baseline explicitly.
+    #
+    # This prevents the personnel adjustment from becoming
+    # mixed into the baseline itself and makes weekly
+    # diagnostics easier to interpret.
+
+    if np.isscalar(baseline_total):
+
+        df["historical_projected_total"] = baseline_total
+
+    else:
+
+        baseline_series = pd.Series(
+            baseline_total,
+            index=df.index
+        )
+
+        df["historical_projected_total"] = baseline_series
+
+
+    # -----------------------------------------------------
+    # Home scoring personnel adjustment
+    # -----------------------------------------------------
+
+    df["home_personnel_scoring_adjustment"] = (
+        OFFENSE_POINTS_PER_Z
+        * df["home_off_personnel_z"]
+        -
+        DEFENSE_POINTS_PER_Z
+        * df["away_def_personnel_z"]
+    )
+
+
+    # -----------------------------------------------------
+    # Away scoring personnel adjustment
+    # -----------------------------------------------------
+
+    df["away_personnel_scoring_adjustment"] = (
+        OFFENSE_POINTS_PER_Z
+        * df["away_off_personnel_z"]
+        -
+        DEFENSE_POINTS_PER_Z
+        * df["home_def_personnel_z"]
+    )
+
+
+    # -----------------------------------------------------
+    # Combined game scoring adjustment
+    # -----------------------------------------------------
+
+    df["personnel_total_adjustment"] = (
+        df["home_personnel_scoring_adjustment"]
+        + df["away_personnel_scoring_adjustment"]
+    )
+
+
+    # -----------------------------------------------------
+    # Final projected game total
+    # -----------------------------------------------------
+
+    df["projected_total"] = (
+        df["historical_projected_total"]
+        + df["personnel_total_adjustment"]
+    )
+
+
+    # -----------------------------------------------------
+    # Projected final scores
+    #
+    # These preserve the existing margin model exactly.
+    #
+    # home_score - away_score = expected_home_margin
+    # home_score + away_score = projected_total
+    # -----------------------------------------------------
 
     df["projected_home_score"] = (
         df["projected_total"]
@@ -150,6 +291,37 @@ def add_total_projections(
         df["projected_total"]
         - df["expected_home_margin"]
     ) / 2
+
+    return df
+
+
+def add_total_market_comparison(df):
+    """
+    Compare model totals against sportsbook totals.
+
+    This function is intentionally separate from
+    add_total_projections() so market information is used
+    only as a benchmark and never as a model input.
+    """
+
+    df = df.copy()
+
+    required_columns = [
+        "projected_total",
+        "total_line"
+    ]
+
+    missing_columns = [
+        col
+        for col in required_columns
+        if col not in df.columns
+    ]
+
+    if missing_columns:
+        raise KeyError(
+            "Missing columns required for total comparison: "
+            + ", ".join(missing_columns)
+        )
 
     df["total_difference_signed"] = (
         df["projected_total"]
@@ -174,9 +346,66 @@ def add_total_projections(
     return df
 
 
-# ---------------------------------------------------------
+def get_total_diagnostics(df):
+    """
+    Return summary diagnostics for the final weekly
+    total projection distribution.
+    """
+
+    required_columns = [
+        "historical_projected_total",
+        "personnel_total_adjustment",
+        "projected_total"
+    ]
+
+    missing_columns = [
+        col
+        for col in required_columns
+        if col not in df.columns
+    ]
+
+    if missing_columns:
+        raise KeyError(
+            "Missing columns required for total diagnostics: "
+            + ", ".join(missing_columns)
+        )
+
+    diagnostics = pd.DataFrame(
+        {
+            "Component": [
+                "Historical Matchup Total",
+                "Personnel Adjustment",
+                "Final Projected Total"
+            ],
+            "Mean": [
+                df["historical_projected_total"].mean(),
+                df["personnel_total_adjustment"].mean(),
+                df["projected_total"].mean()
+            ],
+            "SD": [
+                df["historical_projected_total"].std(),
+                df["personnel_total_adjustment"].std(),
+                df["projected_total"].std()
+            ],
+            "Minimum": [
+                df["historical_projected_total"].min(),
+                df["personnel_total_adjustment"].min(),
+                df["projected_total"].min()
+            ],
+            "Maximum": [
+                df["historical_projected_total"].max(),
+                df["personnel_total_adjustment"].max(),
+                df["projected_total"].max()
+            ]
+        }
+    )
+
+    return diagnostics
+
+
+# =========================================================
 # Display helpers
-# ---------------------------------------------------------
+# =========================================================
 
 def add_display_columns(df):
 
@@ -288,15 +517,28 @@ def get_biggest_differences(
     return ats, totals
 
 
-# ---------------------------------------------------------
+# =========================================================
 # In-season data helpers
-# ---------------------------------------------------------
+# =========================================================
 
 def get_completed_games(
     schedule,
     season,
     target_week
 ):
+    """
+    Return only games completed BEFORE the target week.
+
+    Example:
+    target_week = 2
+    -> Week 1 data may be used.
+
+    target_week = 3
+    -> Weeks 1 and 2 may be used.
+
+    The target week's results can never enter its own
+    projection inputs.
+    """
 
     completed = schedule[
         (schedule["season"] == season)
@@ -365,9 +607,9 @@ def build_inseason_team_summary(
     return summary
 
 
-# ---------------------------------------------------------
+# =========================================================
 # Saving helpers
-# ---------------------------------------------------------
+# =========================================================
 
 def save_weekly_outputs(
     week_number,
