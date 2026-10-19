@@ -219,3 +219,6 @@ __marimo__/
 
 # Generated processed datasets
 data/processed/
+
+# Keep the full Week 6 projections locally for the model
+/weekly_projections/outputs/week_06/week_06_projections.csv
