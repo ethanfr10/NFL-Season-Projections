@@ -5,7 +5,7 @@ from pathlib import Path
 # --------------------------------------------------
 
 SEASON = 2026
-CURRENT_WEEK = 9
+CURRENT_WEEK = 10
 
 N_SIMULATIONS = 50_000
 RANDOM_SEED = 2026
